@@ -33,7 +33,6 @@ def add_indicators(df):
     
     return df
 
-# 공포 탐욕 지수
 def get_fear_and_greed_index():
     url = "https://api.alternative.me/fng/"
     response = requests.get(url)
