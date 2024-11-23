@@ -6,3 +6,6 @@ selenium
 webdriver-manager
 Pillow
 youtube-transcript-api
+streamlit
+plotly
+schedule
