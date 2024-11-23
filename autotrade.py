@@ -27,6 +27,7 @@ from openai import OpenAI
 
 class TradingDecision(BaseModel):
     decision: str
+    percentage: int
     reason: str
 
 # 로깅 설정
@@ -277,7 +278,15 @@ def ai_trading():
                 - The patterns and trends visible in the chart image
                 - Insights from the YouTube video transcript
                 
-                Respond with a decision (buy, sell, or hold) and a reason for your decision."""
+                Respond with:
+                1. A decision (buy, sell, or hold)
+                2. If the decision is 'buy', provide a percentage (1-100) of available KRW to use for buying.
+                If the decision is 'sell', provide a percentage (1-100) of held BTC to sell.
+                If the decision is 'hold', set the percentage to 0.
+                3. A reason for your decision
+                
+                Ensure that the percentage is an integer between 1 and 100 for buy/sell decisions, and exactly 0 for hold decisions.
+                Your percentage should reflect the strength of your conviction in the decision based on the analyzed data."""
             },
             {
                 "role": "user",
@@ -310,9 +319,10 @@ def ai_trading():
                     "type": "object",
                     "properties": {
                         "decision": {"type": "string", "enum": ["buy", "sell", "hold"]},
+                        "percentage": {"type": "integer"},
                         "reason": {"type": "string"}
                     },
-                    "required": ["decision", "reason"],
+                    "required": ["decision", "percentage", "reason"],
                     "additionalProperties": False
                 }
             }
@@ -328,17 +338,19 @@ def ai_trading():
 
     if result.decision == "buy":
         my_krw = upbit.get_balance("KRW")
-        if my_krw*0.9995 > 5000:
-            print("### Buy Order Executed ###")
-            print(upbit.buy_market_order("KRW-BTC", my_krw * 0.9995))
+        buy_amount = my_krw * (result.percentage / 100) * 0.9995  # 수수료 고려
+        if buy_amount > 5000:
+            print(f"### Buy Order Executed: {result.percentage}% of available KRW ###")
+            print(upbit.buy_market_order("KRW-BTC", buy_amount))
         else:
             print("### Buy Order Failed: Insufficient KRW (less than 5000 KRW) ###")
     elif result.decision == "sell":
         my_btc = upbit.get_balance("KRW-BTC")
+        sell_amount = my_btc * (result.percentage / 100)
         current_price = pyupbit.get_orderbook(ticker="KRW-BTC")['orderbook_units'][0]["ask_price"]
-        if my_btc*current_price > 5000:
-            print("### Sell Order Executed ###")
-            print(upbit.sell_market_order("KRW-BTC", my_btc))
+        if sell_amount * current_price > 5000:
+            print(f"### Sell Order Executed: {result.percentage}% of held BTC ###")
+            print(upbit.sell_market_order("KRW-BTC", sell_amount))
         else:
             print("### Sell Order Failed: Insufficient BTC (less than 5000 KRW worth) ###")
     elif result.decision == "hold":
