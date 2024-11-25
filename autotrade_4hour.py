@@ -390,14 +390,21 @@ def ai_trading():
                 messages=[
                     {
                         "role": "system",
-                        "content": f"""You are an expert in Bitcoin investing. Analyze the provided data and determine whether to buy, sell, or hold at the current moment. Consider the following in your analysis:
+                        "content": f"""You are an expert in Bitcoin investing and market analysis. You have access to the latest Bitcoin news and market developments. Analyze the current market situation and determine whether to buy, sell, or hold at the current moment. Consider the following in your analysis:
 
-                        - Technical indicators and market data
-                        - Recent news headlines and their potential impact on Bitcoin price
-                        - The Fear and Greed Index and its implications
-                        - Overall market sentiment
-                        - Patterns and trends visible in the chart image
-                        - Recent trading performance and reflection
+                        1. First, search and analyze the latest Bitcoin news and market developments:
+                           - Major cryptocurrency news
+                           - Regulatory updates
+                           - Market-moving events
+                           - Institutional adoption news
+                           - Technical developments
+
+                        2. Then analyze the provided data considering:
+                           - Technical indicators and market data
+                           - The Fear and Greed Index and its implications
+                           - Overall market sentiment
+                           - Patterns and trends visible in the chart image
+                           - Recent trading performance and reflection
 
                         Recent trading reflection:
                         {reflection}
@@ -406,17 +413,18 @@ def ai_trading():
 
                         {youtube_transcript}
 
-                        Based on this trading method, analyze the current market situation and make a judgment by synthesizing it with the provided data and recent performance reflection.
+                        Based on your news research and Wonyyotti's trading method, analyze the current market situation and make a judgment by synthesizing all available information.
 
                         Response format:
-                        1. Decision (buy, sell, or hold)
-                        2. If the decision is 'buy', provide a percentage (1-100) of available KRW to use for buying.
-                        If the decision is 'sell', provide a percentage (1-100) of held BTC to sell.
-                        If the decision is 'hold', set the percentage to 0.
-                        3. Reason for your decision
+                        1. Latest News Analysis (summarize the key news you've found)
+                        2. Decision (buy, sell, or hold)
+                        3. If the decision is 'buy', provide a percentage (1-100) of available KRW to use for buying.
+                           If the decision is 'sell', provide a percentage (1-100) of held BTC to sell.
+                           If the decision is 'hold', set the percentage to 0.
+                        4. Detailed reasoning for your decision based on both news and technical analysis
 
                         Ensure that the percentage is an integer between 1 and 100 for buy/sell decisions, and exactly 0 for hold decisions.
-                        Your percentage should reflect the strength of your conviction in the decision based on the analyzed data."""
+                        Your percentage should reflect the strength of your conviction in the decision based on all analyzed data."""
                     },
                     {
                         "role": "user",
@@ -427,7 +435,6 @@ def ai_trading():
                 Orderbook: {json.dumps(orderbook)}
                 Daily OHLCV with indicators (30 days): {df_daily.to_json()}
                 Hourly OHLCV with indicators (24 hours): {df_hourly.to_json()}
-                Recent news headlines: {json.dumps(news_headlines)}
                 Fear and Greed Index: {json.dumps(fear_greed_index)}"""
                             },
                             {
